@@ -33,6 +33,27 @@ class HistoryActivity : AppCompatActivity() {
         )
 
         listView.adapter = adapter
+        // Долгое нажатие для удаления категории
+        listView.setOnItemLongClickListener { _, _, position, _ ->
+            val categoryToDelete = categories[position]
+
+            // Предупреждение
+            android.app.AlertDialog.Builder(this)
+                .setTitle("Удалить категорию?")
+                .setMessage("Удаление категории '$categoryToDelete' приведет к удалению всех операций внутри. Продолжить?")
+                .setPositiveButton("Да") { _, _ ->
+                    db.deleteCategory(type, categoryToDelete)
+                    Toast.makeText(this, "Категория удалена", Toast.LENGTH_SHORT).show()
+                    // Обновляем список категорий
+                    val updatedTransactions = db.getTransactionsByType(type)
+                    val updatedCategories = updatedTransactions.map { it.category }.distinct()
+                    listView.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, updatedCategories)
+                }
+                .setNegativeButton("Нет", null)
+                .show()
+
+            true // чтобы событие long click было обработано
+        }
 
         listView.setOnItemClickListener { _, _, position, _ ->
 
@@ -44,4 +65,5 @@ class HistoryActivity : AppCompatActivity() {
             startActivity(intent)
         }
     }
+
 }

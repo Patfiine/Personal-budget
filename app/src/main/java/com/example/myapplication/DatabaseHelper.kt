@@ -84,4 +84,17 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, "finance.db",
         cursor.close()
         return list
     }
+    // Удаление одной операции по ID
+    fun deleteTransaction(id: Int) {
+        val db = writableDatabase
+        db.delete("transactions", "id = ?", arrayOf(id.toString()))
+        db.close()
+    }
+
+    // Удаление всех операций в категории
+    fun deleteCategory(type: String, category: String) {
+        val db = writableDatabase
+        db.delete("transactions", "type = ? AND category = ?", arrayOf(type, category))
+        db.close()
+    }
 }
